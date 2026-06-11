@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Interactive Analytics Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ✅ GTM -->
+    <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id=GTM-PMVP3D7N'+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PMVP3D7N');
+    </script>
+
+    <style>
+        body { 
+            font-family: Arial; 
+            margin: 20px; 
+            background: #f4f4f4;
+            transition: 0.3s;
+        }
+
+        .dark {
+            background: #222;
+            color: white;
+        }
+
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        input {
+            padding: 8px;
+            width: 250px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: black;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ✅ GTM BODY -->
+<noscript>
+<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PMVP3D7N"
+height="0" width="0" style="display:none"></iframe>
+</noscript>
+
+<h1>🚀 Interactive Analytics Demo</h1>
+
+<!-- ✅ Dark Mode Toggle -->
+<button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+
+<!-- ✅ Button Counter -->
+<div class="card">
+    <h2>Button Interaction</h2>
+    <button onclick="trackButton()">Click Me</button>
+    <p>Clicked: <span id="count">0</span> times</p>
+</div>
+
+<!-- ✅ Form -->
+<div class="card">
+    <h2>Contact Form</h2>
+    <form onsubmit="trackForm(event)">
+        <input type="text" id="name" placeholder="Name" required><br><br>
+        <input type="email" id="email" placeholder="Email" required><br><br>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<!-- ✅ Link -->
+<div class="card">
+    <a href="https://duckduckgo.com" onclick="trackLink()">Go to DuckDuckGo</a>
+</div>
+
+<!-- ✅ Video -->
+<div class="card">
+    <h2>Video Section</h2>
+    <iframe width="400" height="250"
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        allowfullscreen
+        onload="trackVideo()">
+    </iframe>
+</div>
+
+<!-- ✅ File Upload -->
+<div class="card">
+    <h2>File Upload</h2>
+    <input type="file" onchange="trackFile(event)">
+</div>
+
+<!-- ✅ Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+let count = 0;
+
+// ✅ Toast
+function showToast(msg) {
+    let toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 2000);
+}
+
+// ✅ Dark Mode
+function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+}
+
+// ✅ Button
+function trackButton() {
+    count++;
+    document.getElementById("count").innerText = count;
+
+    showToast("Button clicked!");
+
+    dataLayer.push({
+        event: 'button_click',
+        clicks: count
+    });
+}
+
+// ✅ Form
+function trackForm(e) {
+    e.preventDefault();
+
+    let name = document.getElementById("name").value;
+
+    showToast("Form submitted!");
+
+    dataLayer.push({
+        event: 'form_submit',
+        user_name: name
+    });
+}
+
+// ✅ Link
+function trackLink() {
+    dataLayer.push({
+        event: 'link_click',
+        link_text: 'DuckDuckGo'
+    });
+}
+
+// ✅ File Upload
+function trackFile(e) {
+    let fileName = e.target.files[0].name;
+
+    showToast("File uploaded: " + fileName);
+
+    dataLayer.push({
+        event: 'file_upload',
+        file_name: fileName
+    });
+}
+
+// ✅ Video Load
+function trackVideo() {
+    dataLayer.push({
+        event: 'video_loaded'
+    });
+}
+
+// ✅ Scroll Tracking
+window.addEventListener("scroll", () => {
+    let scrollPercent = (window.scrollY / document.body.scrollHeight) * 100;
+
+    if (scrollPercent > 50) {
+        dataLayer.push({
+            event: 'scroll_50'
+        });
+    }
+});
+</script>
+
+</body>
+</html>
