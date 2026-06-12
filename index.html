@@ -147,7 +147,9 @@ function trackButton() {
 
     dataLayer.push({
         event: 'button_click',
-        clicks: count
+        clicks: 1 ,
+        page_name: 'Home Page'
+
     });
 }
 
@@ -161,7 +163,9 @@ function trackForm(e) {
 
     dataLayer.push({
         event: 'form_submit',
-        user_name: name
+        user_name: name ,
+        page_name: 'Home Page'
+
     });
 }
 
@@ -169,7 +173,8 @@ function trackForm(e) {
 function trackLink() {
     dataLayer.push({
         event: 'link_click',
-        link_text: 'DuckDuckGo'
+        link_text: 'DuckDuckGo',
+        page_name: 'Home Page'
     });
 }
 
