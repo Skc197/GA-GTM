@@ -1,282 +1,704 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Interactive Analytics Demo</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Analytics Demo</title>
 
-    <!-- ✅ GTM -->
-    <script>
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id=GTM-PMVP3D7N'+dl;f.parentNode.insertBefore(j,f);
+  <!-- ─────────────────────────────────────────────
+       1.  GTM HEAD SNIPPET  (fires dataLayer early)
+       ───────────────────────────────────────────── -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    (function(w,d,s,l,i){
+      w[l]=w[l]||[];
+      w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+      var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),
+          dl=l!='dataLayer'?'&l='+l:'';
+      j.async=true;
+      j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+      f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-PMVP3D7N');
-    </script>
-   <script type="text/javascript">
-var utag_data = {
-  tealium_event : "", // 
-  page_name : "", // 
-  user_name : "", // 
-  link_text : "", // 
-  file_name : "", // 
-  button_name : "", // 
-  clicks : "" // 
-}
-</script>
+  </script>
 
-<!-- Loading script asynchronously -->
-<script type="text/javascript">
+  <!-- ─────────────────────────────────────────────
+       2.  TEALIUM utag_data  (pre-populated shell)
+       ───────────────────────────────────────────── -->
+  <script>
+    var utag_data = {
+      tealium_event : "",
+      page_name     : document.title,
+      user_name     : "",
+      link_text     : "",
+      file_name     : "",
+      button_name   : "",
+      clicks        : ""
+    };
+  </script>
+
+  <!-- ─────────────────────────────────────────────
+       3.  TEALIUM UTAG  (async loader)
+       ───────────────────────────────────────────── -->
+  <script>
     (function(a,b,c,d){
-    a='https://tags.tiqcdn.com/utag/cognizant-sandbox/tealiumass/dev/utag.js';
-    b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
-    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+      a='https://tags.tiqcdn.com/utag/cognizant-sandbox/tealiumass/dev/utag.js';
+      b=document; c='script';
+      d=b.createElement(c);
+      d.src=a; d.type='text/java'+c; d.async=true;
+      a=b.getElementsByTagName(c)[0];
+      a.parentNode.insertBefore(d,a);
     })();
-</script>
-    <script src="https://assets.adobedtm.com/236ca7d75265/e4fca1485721/launch-399a106d9938-development.min.js" async></script>
+  </script>
 
-    <style>
-        body { 
-            font-family: Arial; 
-            margin: 20px; 
-            background: #f4f4f4;
-            transition: 0.3s;
-        }
+  <!-- ─────────────────────────────────────────────
+       4.  ADOBE LAUNCH  (async, non-blocking)
+       ───────────────────────────────────────────── -->
+  <script src="https://assets.adobedtm.com/236ca7d75265/e4fca1485721/launch-399a106d9938-development.min.js" async></script>
 
-        .dark {
-            background: #222;
-            color: white;
-        }
+  <style>
+    /* ── Reset & Tokens ───────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        button {
-            padding: 10px 15px;
-            cursor: pointer;
-            border: none;
-            background: #007BFF;
-            color: white;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
+    :root {
+      --bg        : #f0f2f5;
+      --surface   : #ffffff;
+      --primary   : #1a56db;
+      --primary-h : #1341b0;
+      --text      : #1a1a2e;
+      --muted     : #6b7280;
+      --border    : #e5e7eb;
+      --success   : #16a34a;
+      --radius    : 10px;
+      --shadow    : 0 2px 8px rgba(0,0,0,.08);
+      --transition: .25s ease;
+    }
 
-        button:hover {
-            background: #0056b3;
-            transform: scale(1.1);
-        }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px 16px;
+      transition: background var(--transition), color var(--transition);
+    }
 
-        input {
-            padding: 8px;
-            width: 250px;
-        }
+    /* ── Dark Mode ───────────────────────────────── */
+    body.dark {
+      --bg      : #111827;
+      --surface : #1f2937;
+      --text    : #f9fafb;
+      --border  : #374151;
+      --muted   : #9ca3af;
+    }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+    /* ── Layout ──────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 760px;
+      margin: 0 auto 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: black;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-        }
-    </style>
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; }
+
+    .container { max-width: 760px; margin: 0 auto; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* ── Buttons ─────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: .925rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), transform .15s;
+      text-decoration: none;
+    }
+    .btn:hover  { background: var(--primary-h); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn.outline {
+      background: transparent;
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn.outline:hover { background: var(--primary); color: #fff; }
+
+    /* ── Form ─────────────────────────────────────── */
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 5px; }
+    .field input[type="text"],
+    .field input[type="email"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: .95rem;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color .2s;
+    }
+    .field input:focus { outline: none; border-color: var(--primary); }
+
+    /* ── Counter badge ───────────────────────────── */
+    .counter-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+    .badge {
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Link ─────────────────────────────────────── */
+    .tracked-link { color: var(--primary); font-weight: 500; text-decoration: none; }
+    .tracked-link:hover { text-decoration: underline; }
+
+    /* ── File ─────────────────────────────────────── */
+    input[type="file"] { font-size: .9rem; color: var(--muted); }
+
+    /* ── Video ─────────────────────────────────────── */
+    .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; border-radius: var(--radius); overflow: hidden; }
+    .video-wrap iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
+
+    /* ── Scroll bar ──────────────────────────────── */
+    .scroll-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; margin-top: 10px; }
+    .scroll-bar-fill { height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width .3s; }
+
+    /* ── Event Log ─────────────────────────────────── */
+    #event-log-list {
+      list-style: none;
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: .82rem;
+      font-family: 'Courier New', monospace;
+    }
+    #event-log-list li {
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+    }
+    #event-log-list li .ts { color: var(--muted); white-space: nowrap; }
+    #event-log-list li .evt { color: var(--primary); font-weight: 600; }
+    #event-log-list li .plat { color: var(--success); }
+
+    /* ── Toast ─────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: .9rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; pointer-events: auto; }
+
+    /* ── Platform status pills ───────────────────── */
+    .platform-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .pill {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: .78rem;
+      font-weight: 600;
+      border: 1.5px solid;
+    }
+    .pill.ok   { border-color: var(--success);  color: var(--success); }
+    .pill.wait { border-color: #d97706; color: #d97706; }
+    .pill.err  { border-color: #dc2626; color: #dc2626; }
+  </style>
 </head>
 
 <body>
 
-<!-- ✅ GTM BODY -->
+<!-- GTM noscript fallback -->
 <noscript>
-<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PMVP3D7N"
-height="0" width="0" style="display:none"></iframe>
+  <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PMVP3D7N"
+          height="0" width="0" style="display:none;visibility:hidden"></iframe>
 </noscript>
 
-<h1>🚀 Interactive Analytics Demo</h1>
+<!-- ─── Page Header ──────────────────────────────────── -->
+<div class="page-header">
+  <h1>🚀 Analytics Demo</h1>
+  <button class="btn outline" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+</div>
 
-<!-- ✅ Dark Mode Toggle -->
-<button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+<div class="container">
 
-<!-- ✅ Button Counter -->
-<div class="card">
+  <!-- ─── Platform Status ──────────────────────────── -->
+  <div class="card">
+    <h2>Platform Status</h2>
+    <div class="platform-pills">
+      <span class="pill wait" id="pill-gtm">GTM — loading…</span>
+      <span class="pill wait" id="pill-ga4">GA4 — loading…</span>
+      <span class="pill wait" id="pill-adobe">Adobe — loading…</span>
+      <span class="pill wait" id="pill-tealium">Tealium — loading…</span>
+    </div>
+  </div>
+
+  <!-- ─── Button Counter ───────────────────────────── -->
+  <div class="card">
     <h2>Button Interaction</h2>
-    <button id="myButton" 
-        onclick="trackButton()">Click Me</button>
-    <p>Clicked: <span id="count">0</span> times</p>
-</div>
+    <button class="btn" id="myButton" onclick="trackButton()">Click Me</button>
+    <div class="counter-row">
+      <div class="badge" id="count">0</div>
+      <span style="color:var(--muted); font-size:.9rem;">total clicks tracked across all platforms</span>
+    </div>
+  </div>
 
-<!-- ✅ Form -->
-<div class="card">
+  <!-- ─── Contact Form ─────────────────────────────── -->
+  <div class="card">
     <h2>Contact Form</h2>
-    <form onsubmit="trackForm(event)">
-        <input type="text" id="name" placeholder="Name" required><br><br>
-        <input type="email" id="email" placeholder="Email" required><br><br>
-        <button type="submit">Submit</button>
+    <form id="contactForm" onsubmit="trackForm(event)">
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Jane Doe" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="jane@example.com" required />
+      </div>
+      <button type="submit" class="btn">Submit Form</button>
     </form>
-</div>
+  </div>
 
-<!-- ✅ Link -->
-<div class="card">
-    <a id="myLink" href="https://duckduckgo.com" onclick="trackLink()">Go to DuckDuckGo</a>
-</div>
+  <!-- ─── Link Click ───────────────────────────────── -->
+  <div class="card">
+    <h2>Outbound Link</h2>
+    <a class="tracked-link" id="myLink" href="https://duckduckgo.com"
+       target="_blank" rel="noopener noreferrer"
+       onclick="trackLink(event)">
+      → Go to DuckDuckGo
+    </a>
+  </div>
 
-<!-- ✅ Video -->
-<div class="card">
-    <h2>Video Section</h2>
-    <iframe width="400" height="250"
-        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-        allowfullscreen
-        onload="trackVideo()">
-    </iframe>
-</div>
+  <!-- ─── Video ────────────────────────────────────── -->
+  <div class="card">
+    <h2>Video Embed</h2>
+    <div class="video-wrap">
+      <iframe id="videoFrame"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              allowfullscreen
+              onload="trackVideo()"></iframe>
+    </div>
+  </div>
 
-<!-- ✅ File Upload -->
-<div class="card">
+  <!-- ─── File Upload ──────────────────────────────── -->
+  <div class="card">
     <h2>File Upload</h2>
-    <input type="file" onchange="trackFile(event)">
-</div>
+    <input type="file" onchange="trackFile(event)" />
+  </div>
 
-<!-- ✅ Toast -->
-<div id="toast" class="toast"></div>
+  <!-- ─── Scroll Tracking ──────────────────────────── -->
+  <div class="card">
+    <h2>Scroll Depth</h2>
+    <p style="font-size:.9rem; color:var(--muted); margin-bottom:8px;">Fires event when you scroll past 50% of the page.</p>
+    <div class="scroll-bar-wrap"><div class="scroll-bar-fill" id="scrollFill"></div></div>
+  </div>
 
+  <!-- ─── Live Event Log ───────────────────────────── -->
+  <div class="card">
+    <h2>Live Event Log</h2>
+    <ul id="event-log-list"></ul>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     ANALYTICS ABSTRACTION LAYER
+     All platform calls go through Analytics.track()
+     so you never duplicate logic or break one platform.
+═══════════════════════════════════════════════════ -->
 <script>
-let count = 0;
+"use strict";
 
-// ✅ Toast
+/* ─────────────────────────────────────────────────────
+   ANALYTICS ABSTRACTION LAYER
+   ─────────────────────────────────────────────────── */
+var Analytics = (function () {
+
+  /* ── Helpers ───────────────────────────────────── */
+  function timestamp() {
+    return new Date().toLocaleTimeString('en-GB', { hour12: false });
+  }
+
+  function logEvent(eventName, platforms, payload) {
+    var list = document.getElementById('event-log-list');
+    if (!list) return;
+    var li = document.createElement('li');
+    li.innerHTML =
+      '<span class="ts">' + timestamp() + '</span>' +
+      '<span class="evt">' + eventName + '</span>' +
+      '<span class="plat">[' + platforms.join(', ') + ']</span>';
+    list.insertBefore(li, list.firstChild);
+  }
+
+  /* ── GTM / GA4 ─────────────────────────────────── */
+  function pushGTM(payload) {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push(payload);
+      return true;
+    } catch (e) {
+      console.error('[Analytics] GTM push failed:', e);
+      return false;
+    }
+  }
+
+  /* ── Adobe Launch / ACDL ───────────────────────── */
+  // Adobe Launch listens to _satellite.track() calls.
+  // adobeDataLayer is the standard Adobe Client Data Layer (ACDL).
+  function pushAdobe(eventName, payload) {
+    try {
+      // Method 1: Adobe Client Data Layer (preferred, modern)
+      if (window.adobeDataLayer) {
+        window.adobeDataLayer.push({
+          event: eventName,
+          eventInfo: payload
+        });
+        return true;
+      }
+      // Method 2: _satellite.track (Launch direct rule trigger)
+      if (window._satellite && typeof window._satellite.track === 'function') {
+        window._satellite.track(eventName, payload);
+        return true;
+      }
+      // Method 3: digitalData fallback (legacy DTM / Analytics.js pattern)
+      if (window.digitalData) {
+        window.digitalData.events = window.digitalData.events || [];
+        window.digitalData.events.push(
+          Object.assign({ name: eventName }, payload)
+        );
+        return true;
+      }
+    } catch (e) {
+      console.error('[Analytics] Adobe push failed:', e);
+    }
+    return false;
+  }
+
+  /* ── Tealium (utag) ─────────────────────────────── */
+  // utag.link  → interaction events  (does NOT increment page view count)
+  // utag.view  → page/screen views
+  function pushTealium(type, payload) {
+    try {
+      if (window.utag && typeof window.utag[type] === 'function') {
+        window.utag[type](payload);
+        return true;
+      }
+      // Tealium not yet ready — queue it
+      window._utagQueue = window._utagQueue || [];
+      window._utagQueue.push({ type: type, payload: payload });
+    } catch (e) {
+      console.error('[Analytics] Tealium push failed:', e);
+    }
+    return false;
+  }
+
+  /* ── Master track() ─────────────────────────────── */
+  // payload keys follow a unified schema shared by all platforms.
+  // GTM Variables, Adobe rules, and Tealium tags all map these same keys.
+  function track(eventName, payload) {
+    payload = payload || {};
+    var fired = [];
+
+    // 1. GTM / GA4
+    var gtmPayload = Object.assign({ event: eventName }, payload);
+    if (pushGTM(gtmPayload)) fired.push('GTM/GA4');
+
+    // 2. Adobe Launch
+    if (pushAdobe(eventName, payload)) fired.push('Adobe');
+
+    // 3. Tealium
+    var tealiumPayload = Object.assign({ tealium_event: eventName }, payload);
+    if (pushTealium('link', tealiumPayload)) fired.push('Tealium');
+
+    logEvent(eventName, fired, payload);
+    console.log('[Analytics] event:', eventName, payload, '→ fired on:', fired);
+  }
+
+  /* ── Page view (separate — uses utag.view) ───────── */
+  function trackPageView(payload) {
+    payload = payload || {};
+    var fired = [];
+
+    // GTM
+    if (pushGTM(Object.assign({ event: 'page_view' }, payload))) fired.push('GTM/GA4');
+
+    // Adobe
+    if (pushAdobe('page_view', payload)) fired.push('Adobe');
+
+    // Tealium — use utag.view for page views
+    var tPayload = Object.assign({ tealium_event: 'page_view' }, payload);
+    if (window.utag && typeof window.utag.view === 'function') {
+      try { window.utag.view(tPayload); fired.push('Tealium'); } catch (e) {}
+    } else {
+      window._utagQueue = window._utagQueue || [];
+      window._utagQueue.push({ type: 'view', payload: tPayload });
+    }
+
+    logEvent('page_view', fired, payload);
+  }
+
+  return { track: track, trackPageView: trackPageView, pushGTM: pushGTM };
+}());
+
+
+/* ─────────────────────────────────────────────────────
+   TEALIUM QUEUE DRAIN
+   If utag loaded after our events, flush the queue.
+   ─────────────────────────────────────────────────── */
+(function drainUtagQueue() {
+  var maxWait = 8000, interval = 200, elapsed = 0;
+  var timer = setInterval(function () {
+    elapsed += interval;
+    if (window.utag && window._utagQueue && window._utagQueue.length) {
+      window._utagQueue.forEach(function (item) {
+        try { window.utag[item.type](item.payload); } catch (e) {}
+      });
+      window._utagQueue = [];
+    }
+    if (elapsed >= maxWait) clearInterval(timer);
+  }, interval);
+}());
+
+
+/* ─────────────────────────────────────────────────────
+   PLATFORM STATUS CHECKER
+   ─────────────────────────────────────────────────── */
+(function checkPlatforms() {
+  var checks = {
+    gtm     : function () { return Array.isArray(window.dataLayer); },
+    ga4     : function () { return typeof window.gtag === 'function'; },
+    adobe   : function () { return !!(window._satellite || window.adobeDataLayer); },
+    tealium : function () { return !!(window.utag); }
+  };
+
+  function setPill(id, ok) {
+    var el = document.getElementById('pill-' + id);
+    if (!el) return;
+    el.className = 'pill ' + (ok ? 'ok' : 'err');
+    var labels = {
+      gtm:'GTM', ga4:'GA4', adobe:'Adobe', tealium:'Tealium'
+    };
+    el.textContent = labels[id] + (ok ? ' ✓ ready' : ' ✗ not found');
+  }
+
+  var maxWait = 10000, interval = 400, elapsed = 0;
+  var remaining = Object.keys(checks);
+
+  var timer = setInterval(function () {
+    elapsed += interval;
+    remaining = remaining.filter(function (id) {
+      if (checks[id]()) { setPill(id, true); return false; }
+      return true;
+    });
+    if (!remaining.length || elapsed >= maxWait) {
+      remaining.forEach(function (id) { setPill(id, false); });
+      clearInterval(timer);
+    }
+  }, interval);
+}());
+
+
+/* ─────────────────────────────────────────────────────
+   TOAST
+   ─────────────────────────────────────────────────── */
+var _toastTimer;
 function showToast(msg) {
-    let toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.style.display = "block";
-    setTimeout(() => toast.style.display = "none", 2000);
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2500);
 }
 
-// ✅ Dark Mode
+
+/* ─────────────────────────────────────────────────────
+   DARK MODE
+   ─────────────────────────────────────────────────── */
 function toggleDarkMode() {
-    document.body.classList.toggle("dark");
+  document.body.classList.toggle('dark');
+  var isDark = document.body.classList.contains('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
-// ✅ Button
+// Restore on load
+(function () {
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+}());
+
+
+/* ─────────────────────────────────────────────────────
+   BUTTON CLICK
+   ─────────────────────────────────────────────────── */
+var clickCount = 0;
+
 function trackButton() {
-    count++;
-    document.getElementById("count").innerText = count;
+  clickCount++;
+  document.getElementById('count').textContent = clickCount;
+  showToast('Button clicked!');
 
-    showToast("Button clicked!");
-
-    dataLayer.push({
-        event: 'button_click',
-        clicks: 1 ,
-        page_name: 'Home Page'
-    });
-    if(window.utag){
-        utag.link({
-            tealium_event:"button_click",
-            button_name:"Click Me",
-            clicks:1,
-            page_name:"Home Page"
-        });
-    }
+  Analytics.track('button_click', {
+    button_name : 'Click Me',
+    clicks      : clickCount,
+    page_name   : document.title
+  });
 }
 
-// ✅ Form
+
+/* ─────────────────────────────────────────────────────
+   FORM SUBMIT
+   ─────────────────────────────────────────────────── */
 function trackForm(e) {
-    e.preventDefault();
+  e.preventDefault();
+  var name  = document.getElementById('name').value.trim();
+  var email = document.getElementById('email').value.trim();
 
-    let name = document.getElementById("name").value;
+  showToast('Form submitted by ' + name + '!');
 
-    showToast("Form submitted!");
+  Analytics.track('form_submit', {
+    user_name : name,
+    // NOTE: never send raw email to analytics — hash or omit for privacy
+    page_name : document.title
+  });
 
-    dataLayer.push({
-        event: 'form_submit',
-        user_name: name ,
-        page_name: 'Home Page'
-
-    });
-    if(window.utag){
-        utag.link({
-            tealium_event:"form_submit",
-            user_name:name,
-            page_name:"Home Page"
-        });
-    }
+  // Optional: reset form
+  document.getElementById('contactForm').reset();
 }
 
-// ✅ Link
-function trackLink() {
-    dataLayer.push({
-        event: 'link_click',
-        link_text: 'DuckDuckGo',
-        page_name: 'Home Page'
-    });
-    if(window.utag){
-        utag.link({
-            tealium_event:"link_click",
-            link_text:"DuckDuckGo",
-            page_name:"Home Page"
-        });
-    }
-});
+
+/* ─────────────────────────────────────────────────────
+   LINK CLICK  (fixed: removed rogue '}' from original)
+   ─────────────────────────────────────────────────── */
+function trackLink(e) {
+  var el   = e.currentTarget;
+  var text = el.innerText.trim();
+  var href = el.getAttribute('href');
+
+  Analytics.track('link_click', {
+    link_text : text,
+    link_url  : href,
+    page_name : document.title
+  });
 }
 
-// ✅ File Upload
-function trackFile(e) {
-    let fileName = e.target.files[0].name;
 
-    showToast("File uploaded: " + fileName);
-
-    dataLayer.push({
-        event: 'file_upload',
-        file_name: fileName
-    });
-    if(window.utag){
-        utag.link({
-            tealium_event:"file_upload",
-            file_name:fileName
-        });
-    }
-}
-
-// ✅ Video Load
+/* ─────────────────────────────────────────────────────
+   VIDEO LOAD
+   ─────────────────────────────────────────────────── */
 function trackVideo() {
-    dataLayer.push({
-        event: 'video_loaded'
-    });
-    if(window.utag){
-        utag.link({
-            tealium_event:"video_loaded"
-        });
-    }
+  Analytics.track('video_loaded', {
+    video_url : document.getElementById('videoFrame').src,
+    page_name : document.title
+  });
 }
-// Page View
-window.addEventListener("load",function () {
-    if(window.utag){
-        utag.view({
-            tealium_event:"page_view",
-            page_name:document.title
+
+
+/* ─────────────────────────────────────────────────────
+   FILE UPLOAD
+   ─────────────────────────────────────────────────── */
+function trackFile(e) {
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  showToast('File: ' + file.name);
+
+  Analytics.track('file_upload', {
+    file_name : file.name,
+    file_type : file.type || 'unknown',
+    file_size : file.size,
+    page_name : document.title
+  });
+}
+
+
+/* ─────────────────────────────────────────────────────
+   SCROLL TRACKING
+   Milestones: 25%, 50%, 75%, 90%
+   ─────────────────────────────────────────────────── */
+(function initScrollTracking() {
+  var milestones  = [25, 50, 75, 90];
+  var fired       = {};
+  var fill        = document.getElementById('scrollFill');
+
+  window.addEventListener('scroll', function () {
+    var scrolled = window.scrollY;
+    var docH     = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
+    var viewH    = window.innerHeight;
+    var pct      = Math.round((scrolled / (docH - viewH)) * 100);
+
+    // Update visual bar (capped 0-100)
+    if (fill) fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+
+    milestones.forEach(function (m) {
+      if (!fired[m] && pct >= m) {
+        fired[m] = true;
+        Analytics.track('scroll_depth', {
+          scroll_depth : m,
+          page_name    : document.title
         });
-    }
-});
-// ✅ Scroll Tracking
-    let scrollTracked = false;
-window.addEventListener("scroll", () => {
-    let scrollPercent = (window.scrollY / document.body.scrollHeight) * 100;
-    if (scrollPercent > 50 && !scrollTracked){
-        scrollTracked = true;
-        dataLayer.push({
-            event: 'scroll_50'
-        });
-        if(window.utag){
-        utag.link({
-            tealium_event:"scroll_50"
-        });
-    }
-    }
+        showToast('Scroll ' + m + '% tracked!');
+      }
+    });
+  }, { passive: true });
+}());
+
+
+/* ─────────────────────────────────────────────────────
+   PAGE VIEW  (fires after all scripts settle)
+   ─────────────────────────────────────────────────── */
+window.addEventListener('load', function () {
+  Analytics.trackPageView({
+    page_name  : document.title,
+    page_url   : window.location.href,
+    page_path  : window.location.pathname,
+    referrer   : document.referrer || 'direct'
+  });
 });
 </script>
 
 </body>
 </html>
+
