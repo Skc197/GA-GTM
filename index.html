@@ -13,6 +13,26 @@
     'https://www.googletagmanager.com/gtm.js?id=GTM-PMVP3D7N'+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-PMVP3D7N');
     </script>
+   <script type="text/javascript">
+var utag_data = {
+  tealium_event : "", // 
+  page_name : "", // 
+  user_name : "", // 
+  link_text : "", // 
+  file_name : "", // 
+  button_name : "", // 
+  clicks : "" // 
+}
+</script>
+
+<!-- Loading script asynchronously -->
+<script type="text/javascript">
+    (function(a,b,c,d){
+    a='https://tags.tiqcdn.com/utag/cognizant-sandbox/tealiumass/dev/utag.js';
+    b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+    })();
+</script>
     <script src="https://assets.adobedtm.com/236ca7d75265/e4fca1485721/launch-399a106d9938-development.min.js" async></script>
 
     <style>
@@ -151,8 +171,15 @@ function trackButton() {
         event: 'button_click',
         clicks: 1 ,
         page_name: 'Home Page'
-
     });
+    if(window.utag){
+        utag.link({
+            tealium_event:"button_click",
+            button_name:"Click Me",
+            clicks:1,
+            page_name:"Home Page"
+        });
+    }
 }
 
 // ✅ Form
@@ -169,6 +196,13 @@ function trackForm(e) {
         page_name: 'Home Page'
 
     });
+    if(window.utag){
+        utag.link({
+            tealium_event:"form_submit",
+            user_name:name,
+            page_name:"Home Page"
+        });
+    }
 }
 
 // ✅ Link
@@ -178,6 +212,14 @@ function trackLink() {
         link_text: 'DuckDuckGo',
         page_name: 'Home Page'
     });
+    if(window.utag){
+        utag.link({
+            tealium_event:"link_click",
+            link_text:"DuckDuckGo",
+            page_name:"Home Page"
+        });
+    }
+});
 }
 
 // ✅ File Upload
@@ -190,6 +232,12 @@ function trackFile(e) {
         event: 'file_upload',
         file_name: fileName
     });
+    if(window.utag){
+        utag.link({
+            tealium_event:"file_upload",
+            file_name:fileName
+        });
+    }
 }
 
 // ✅ Video Load
@@ -197,16 +245,35 @@ function trackVideo() {
     dataLayer.push({
         event: 'video_loaded'
     });
+    if(window.utag){
+        utag.link({
+            tealium_event:"video_loaded"
+        });
+    }
 }
-
+// Page View
+window.addEventListener("load",function () {
+    if(window.utag){
+        utag.view({
+            tealium_event:"page_view",
+            page_name:document.title
+        });
+    }
+});
 // ✅ Scroll Tracking
+    let scrollTracked = false;
 window.addEventListener("scroll", () => {
     let scrollPercent = (window.scrollY / document.body.scrollHeight) * 100;
-
-    if (scrollPercent > 50) {
+    if (scrollPercent > 50 && !scrollTracked){
+        scrollTracked = true;
         dataLayer.push({
             event: 'scroll_50'
         });
+        if(window.utag){
+        utag.link({
+            tealium_event:"scroll_50"
+        });
+    }
     }
 });
 </script>
